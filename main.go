@@ -129,7 +129,8 @@ func main() {
 	for _, e := range elements {
 		href, err := e.GetAttribute("href")
 		if err != nil {
-			panic(err)
+			// a tag with no href.
+			continue
 		}
 
 		if strings.Contains(href, *alphaBaseURL) && !strings.Contains(href, "#") {
