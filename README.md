@@ -16,6 +16,8 @@ You'll need to have webdriver running at `localhost:4444` or specify the URL to 
 
 Once it's done running, you'll have an output directory with all of the screenshots + diffs + a JSON file with a bunch of info in it about which screenshots belong to which url, how similar they are, and the overall similarity across all screenshots. Someday I'll build a little web UI around this.
 
+You can optionally specify the path to a sitemap.xml file using the `sitemap-url` flag. If you specify a sitemap, the links contained in the sitemap will be used instead of the links found on the home page of the alpha site. The full URL to the sitemap.xml depends on what you specify for the alpha site base url -- essentially, it's `alpha-base-url sitemap-url`.
+
 ## Building
 
 `make`
