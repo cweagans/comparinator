@@ -23,6 +23,7 @@ var (
 	captureWait  = flag.Int("capture-wait", 1000, "number of milliseconds to wait after a page is loaded to take the screenshot")
 	alphaBaseURL = flag.String("alpha-base-url", "", "base url for alpha site")
 	betaBaseURL  = flag.String("beta-base-url", "", "base url for beta site")
+	sitemapURL   = flag.String("sitemap-url", "", "sitemap path")
 	testPath     = flag.String("test-path", "/", "path to test on both the sites")
 	seleniumURL  = flag.String("webdriver-url", "", "full url (including port) to webdriver")
 	outputDir    = flag.String("output-dir", "output", "directory to output screenshots, metadata, and web UI")
@@ -40,6 +41,7 @@ type Link struct {
 	Similarity          float64 `json:"similarity"`
 	DiffFile            string  `json:"diffFile"`
 	AlphaBaseURL        string  `json:"alphaBaseURL"`
+	SitemapURL          string  `json:"sitemappURL"`
 	BetaBaseURL         string  `json:"betaBaseURL"`
 }
 
@@ -53,6 +55,7 @@ type Result struct {
 	CompareEndTimeFormatted   string          `json:"compareEndTimeFormatted"`
 	TestPath                  string          `json:"testPath"`
 	AlphaBaseURL              string          `json:"alphaBaseURL"`
+	SitemapURL                string          `json:"sitemapURL"`
 	BetaBaseURL               string          `json:"betaBaseURL"`
 	CaptureWait               int             `json:"captureWait"`
 	Title                     string          `json:"title"`
@@ -66,6 +69,7 @@ func main() {
 	result.CompareStartTime = time.Now()
 	result.TestPath = *testPath
 	result.AlphaBaseURL = *alphaBaseURL
+	result.SitemapURL = *sitemapURL
 	result.BetaBaseURL = *betaBaseURL
 	result.Title = *runTitle
 	result.CaptureWait = *captureWait
@@ -114,13 +118,22 @@ func main() {
 		Similarity:          0,
 		DiffFile:            "",
 		AlphaBaseURL:        *alphaBaseURL,
+		SitemapURL:          *sitemapURL,
 		BetaBaseURL:         *betaBaseURL,
 	}
 
 	// Load the page
-	if err := wd.Get(strings.Join([]string{*alphaBaseURL, *testPath}, "")); err != nil {
-		log.Printf("Error loading %s%s: %s\n", *alphaBaseURL, *testPath, err.Error())
+	// use sitemap url if available.
+	if *sitemapURL != "" {
+		if err := wd.Get(strings.Join([]string{*alphaBaseURL, *sitemapURL}, "")); err != nil {
+			log.Printf("Error loading %s%s: %s\n", *alphaBaseURL, *sitemapURL, err.Error())
+		}
+	} else {
+		if err := wd.Get(strings.Join([]string{*alphaBaseURL, *testPath}, "")); err != nil {
+			log.Printf("Error loading %s%s: %s\n", *alphaBaseURL, *testPath, err.Error())
+		}
 	}
+
 	elements, err := wd.FindElements(selenium.ByCSSSelector, "a")
 	if err != nil {
 		panic(err)
@@ -152,6 +165,7 @@ func main() {
 				Similarity:          0,
 				DiffFile:            "",
 				AlphaBaseURL:        *alphaBaseURL,
+				SitemapURL:          *sitemapURL,
 				BetaBaseURL:         *betaBaseURL,
 			}
 		}
